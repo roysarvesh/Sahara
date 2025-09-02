@@ -1,0 +1,14 @@
+projects/sahara-hackathon/locations/asia-south1/agents/acf8b86a-b8e4-4b20-a631-696618f67d57
+
+sahara-hackathon
+239891597349
+
+gcloud run deploy sahara-backend ^
+  --source . ^
+  --platform managed ^
+  --region us-central1 ^
+  --allow-unauthenticated ^
+  --min-instances=0 ^
+  --set-env-vars="GCP_PROJECT_ID=your-sahara-hackathon ,DF_LOCATION=asia-south1,DF_AGENT_ID=acf8b86a-b8e4-4b20-a631-696618f67d57"
+
+https://sahara-backend-239891597349.us-central1.run.app
