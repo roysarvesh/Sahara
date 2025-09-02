@@ -1,6 +1,6 @@
 # Sahara - AI Mental Wellness Ally
 
-!(https://i.imgur.com/your-banner-image.png) Sahara is an AI-powered, confidential, and empathetic mental wellness chatbot designed to support the youth in India. It provides a safe, anonymous, and non-judgmental space for users to take the first step in their mental wellness journey, helping to overcome stigma and access support.
+Sahara is an AI-powered, confidential, and empathetic mental wellness chatbot designed to support the youth in India. It provides a safe, anonymous, and non-judgmental space for users to take the first step in their mental wellness journey, helping to overcome stigma and access support.
 
 This project was built for a hackathon, focusing on creating a scalable, responsible, and impactful prototype using Google Cloud's generative AI technologies.
 
