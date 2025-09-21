@@ -19,4 +19,5 @@ EXPOSE 8080
 
 # Run the web server using gunicorn on container startup
 # FIX: Changed timeout from 0 (disabled) to 120 seconds to prevent workers from hanging indefinitely.
+
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 120 main:app
