@@ -1,0 +1,6 @@
+# backend/requirements.txt
+Flask==3.0.3
+gunicorn==22.0.0
+google-cloud-dialogflow-cx==1.42.0
+python-dotenv==1.0.1
+flask-cors==6.0.1
