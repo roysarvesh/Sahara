@@ -37,79 +37,82 @@
             </form>
         </footer>
     </div>
-
-    <script>
-        const chatForm = document.getElementById('chat-form');
-        const messageInput = document.getElementById('message-input');
-        const messagesContainer = document.getElementById('messages');
-        
-        // Use a persistent session ID for the user stored in their browser
-        let sessionId = localStorage.getItem('sahara_session_id') |
-
-| crypto.randomUUID();
+<script>
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const messagesContainer = document.getElementById('messages');
+    
+    // --- FIX: Robust session ID handling ---
+    let sessionId = localStorage.getItem('sahara_session_id');
+    // Check for null, undefined, or the literal string "undefined"
+    if (!sessionId || sessionId === 'undefined') {
+        sessionId = crypto.randomUUID();
         localStorage.setItem('sahara_session_id', sessionId);
+    }
+    // --- END FIX ---
 
-        // --- IMPORTANT: You will replace this URL after deploying the backend ---
-        const BACKEND_URL = 'https://sahara-backend-239891597349.us-central1.run.app';
+    // --- IMPORTANT: This should be your backend URL ---
+    const BACKEND_URL = 'https://sahara-backend-239891597349.asia-south1.run.app';
 
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const messageText = messageInput.value.trim();
-            if (messageText === '') return;
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const messageText = messageInput.value.trim();
+        if (messageText === '') return;
 
-            appendMessage(messageText, 'user');
-            messageInput.value = '';
-            appendTypingIndicator();
+        appendMessage(messageText, 'user');
+        messageInput.value = '';
+        appendTypingIndicator();
 
-            try {
-                const response = await fetch(`${BACKEND_URL}/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: messageText, session_id: sessionId }),
-                });
+        try {
+            const response = await fetch(`${BACKEND_URL}/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: messageText, sessionId: sessionId }),
+            });
 
-                removeTypingIndicator();
+            removeTypingIndicator();
 
-                if (!response.ok) throw new Error('Network response was not ok.');
+            if (!response.ok) throw new Error('Network response was not ok.');
 
-                const data = await response.json();
-                sessionId = data.session_id; // Update session ID if backend creates a new one
-                localStorage.setItem('sahara_session_id', sessionId);
+            const data = await response.json();
+            sessionId = data.session_id; // Update session ID from the (now correct) backend response
+            localStorage.setItem('sahara_session_id', sessionId);
 
-                appendMessage(data.response, 'bot', data.is_crisis);
+            appendMessage(data.reply, 'bot', data.isCrisis);
 
-            } catch (error) {
-                console.error('Error:', error);
-                removeTypingIndicator();
-                appendMessage("I'm sorry, something went wrong. Please try again.", 'bot', true);
-            }
-        });
-
-        function appendMessage(text, sender, isCrisis = false) {
-            const messageWrapper = document.createElement('div');
-            messageWrapper.classList.add('chat', sender === 'user'? 'chat-end' : 'chat-start');
-            
-            const bubbleColor = sender === 'bot'? (isCrisis? 'chat-bubble-error' : 'chat-bubble-primary') : 'chat-bubble-accent';
-            const avatarHTML = sender === 'bot'? `<div class="chat-image avatar"><div class="w-10 rounded-full bg-primary text-primary-content"><span>AI</span></div></div>` : '';
-
-            messageWrapper.innerHTML = `${avatarHTML}<div class="chat-bubble ${bubbleColor}">${text.replace(/\n/g, '<br>')}</div>`;
-            messagesContainer.appendChild(messageWrapper);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) {
+            console.error('Error:', error);
+            removeTypingIndicator();
+            appendMessage("I'm sorry, something went wrong. Please try again.", 'bot', true);
         }
+    });
 
-        function appendTypingIndicator() {
-            const typingIndicator = document.createElement('div');
-            typingIndicator.id = 'typing-indicator';
-            typingIndicator.classList.add('chat', 'chat-start');
-            typingIndicator.innerHTML = `<div class="chat-image avatar"><div class="w-10 rounded-full bg-primary text-primary-content"><span>AI</span></div></div><div class="chat-bubble chat-bubble-primary"><span class="loading loading-dots loading-md"></span></div>`;
-            messagesContainer.appendChild(typingIndicator);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
+    function appendMessage(text, sender, isCrisis = false) {
+        const messageWrapper = document.createElement('div');
+        messageWrapper.classList.add('chat', sender === 'user'? 'chat-end' : 'chat-start');
+        
+        const bubbleColor = sender === 'bot'? (isCrisis? 'chat-bubble-error' : 'chat-bubble-primary') : 'chat-bubble-accent';
+        const avatarHTML = sender === 'bot'? `<div class="chat-image avatar"><div class="w-10 rounded-full bg-primary text-primary-content"><span>AI</span></div></div>` : '';
 
-        function removeTypingIndicator() {
-            const typingIndicator = document.getElementById('typing-indicator');
-            if (typingIndicator) typingIndicator.remove();
-        }
-    </script>
+        const messageText = text || "Sorry, I couldn't get a response.";
+        messageWrapper.innerHTML = `${avatarHTML}<div class="chat-bubble ${bubbleColor}">${messageText.replace(/\n/g, '<br>')}</div>`;
+        messagesContainer.appendChild(messageWrapper);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function appendTypingIndicator() {
+        const typingIndicator = document.createElement('div');
+        typingIndicator.id = 'typing-indicator';
+        typingIndicator.classList.add('chat', 'chat-start');
+        typingIndicator.innerHTML = `<div class="chat-image avatar"><div class="w-10 rounded-full bg-primary text-primary-content"><span>AI</span></div></div><div class="chat-bubble chat-bubble-primary"><span class="loading loading-dots loading-md"></span></div>`;
+        messagesContainer.appendChild(typingIndicator);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) typingIndicator.remove();
+    }
+</script>
 </body>
 </html>
